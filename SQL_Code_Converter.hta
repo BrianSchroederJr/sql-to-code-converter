@@ -1,0 +1,144 @@
+<HEAD>
+<TITLE>SQL Code Converter</TITLE>
+<hta:application applicationname="SQL Code Converter" scroll="yes" singleinstance="yes">
+    <style type="text/css">
+        .style1
+        {
+            font-size: x-small;
+        }
+        .style2
+        {
+            color: silver;
+        }
+        .style3
+        {
+            font-size: xx-small;
+        }
+        #Text1
+        {
+            height: 357px;
+            width: 790px;
+        }
+        #TextArea1
+        {
+            height: 475px;
+            width: 1000px;
+        }
+    </style>
+</HEAD>
+ 
+<SCRIPT language="vbscript">
+ 
+Sub CopyText
+    window.TextArea1.select()
+    'window.TextArea1.copy()  --Need something like this.
+End Sub
+
+Sub ClearText
+    TextArea1.Value = ""
+    TextArea1.focus()
+End Sub
+
+
+Sub SQLtoC
+	
+str1 = TextArea1.Value
+arryStr = Split(str1,vbCrLf)
+arrySize = Ubound(arryStr)
+loopCnt = 0
+For Each strLine in arryStr
+    loopCnt = loopCnt + 1
+    'Check for last line of array
+    if loopCnt > arrySize then
+        'check for and remove comments
+        if InStr(strLine,"--") <> 1 then
+            if InStr(strLine,"--") <> 0 then
+                strLine = Mid(strLine,1,InStr(strLine,"--")-1)
+            end if
+            'put double quotes (chr(34) around string and replace any double quotes in string with \" and add a ; and then start new line
+            '12/17/2015 - Added a replace for "\" with "\\" in case a SQL switch like \n is being used
+            str2 = str2 + chr(34) +  Replace(Replace(strLine,chr(34),"\" + chr(34)),"\","\\") + " " + chr(34) + ";"
+        end if
+    else
+        'check for and remove comments
+        if InStr(strLine,"--") <> 1 then
+            if InStr(strLine,"--") <> 0 then
+                strLine = Mid(strLine,1,InStr(strLine,"--")-1)
+            end if
+            'put double quotes (chr(34) around string and replace any double quotes in string with \" and add a  + and then start new line
+            '12/17/2015 - Added a replace for "\" with "\\" in case a SQL switch like \n is being used
+            str2 = str2 + chr(34) +  Replace(Replace(strLine,chr(34),"\" + chr(34)),"\","\\") + " " + chr(34) + " " + "+" + vbCrLf
+        end if
+    end if
+Next
+TextArea1.Value = str2
+
+End Sub
+
+
+Sub CtoSQL
+	
+str1 = TextArea1.Value
+arryStr = Split(str1,vbCrLf)
+arrySize = Ubound(arryStr)
+loopCnt = 0
+For Each strLine in arryStr
+    loopCnt = loopCnt + 1
+    'Check for last line of array
+    if loopCnt > arrySize then
+        'Remove first double quotes only
+        'Syntax:
+        'Replace(string,find,replacewith[,start[,count[,compare]]])
+        strLine = Replace(strLine,chr(34),"",1,1,0)
+        'Remove ending with ";
+        strLine = Replace(strLine, chr(34) + ";","")
+        'Replace any \" with "
+        '12/17/2015 - Added a replace for "\\" with "\" in case a C# switch like \\n is being used
+        strLine = Replace(Replace(strLine,"\" + chr(34), chr(34)),"\\","\")
+        'Add final string back to total
+        str2 = str2 + strLine
+    else
+        'Remove first double quotes only
+        'Syntax:
+        'Replace(string,find,replacewith[,start[,count[,compare]]])
+        strLine = Replace(strLine,chr(34),"",1,1,0)
+        'Remove ending with " + ! This replaces all occurences of ' space"space+ ' with nothing!
+        strLine = Replace(strLine, chr(34) + " " + "+","")
+        'Replace any \" with "
+        '12/17/2015 - Added a replace for "\\" with "\" in case a C# switch like \\n is being used
+        strLine = Replace(Replace(strLine,"\" + chr(34), chr(34)),"\\","\")
+        'Add final string back to total
+        str2 = str2 + strLine + vbCrLf
+    end if
+Next
+TextArea1.Value = str2
+
+End Sub
+ 
+</SCRIPT>
+ 
+
+<BODY OnLoad="TextArea1.focus()" STYLE="FONT:10 pt verdana; COLOR:black; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#FFFFFF', EndColorStr='#FFFFFF'); width: 975px; height: 354px;">
+    <strong><span class="style1">Enter SQL Code:<br />
+    <textarea id="TextArea1" name="S1" 
+        wrap="off" cols="20"></textarea>
+        <input id="Button3" name="button3" type="button" value="Select All" onClick="CopyText"/>&nbsp;&nbsp;&nbsp;&nbsp; <input 
+        id="Button4" type="button" value="Clear" onClick="ClearText" /></span></strong><br /><br />
+ 
+<input id=Button1 class= "button" type="button" value="SQL -> C#" name="button1" onClick="SQLtoC">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input id=Button2 class= "button" type="button" value="C# -> SQL" name="button2" onClick="CtoSQL">
+    <p>
+        <span class="style3"><span class="style2"><em>This program will convert SQL code 
+        to an SQL string that can be used in programs and vice versa.<br />
+        The SQL to C# button will remove any SQL Comments.<br />
+        The C# to SQL button will change \&quot; to &quot;, remove the first double quotes, and 
+        will remove the following combinations:<br />
+&nbsp;&quot; +<br />
+&nbsp;&quot;;</em></p>
+    <p>
+		<em>Created by Brian Schroeder Jr.</em>
+		<br />
+		<em>On 3/23/2012.</em>
+	</p>
+    </span></span>
+</BODY>
